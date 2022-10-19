@@ -221,21 +221,21 @@ class _Keyword_Spotting_Service:
 
         # extract spectogram
         X = self.preprocess_audio(file_path)
-        print(X.shape)
+        # print(X.shape)
         # reshape spec
 
         data = X.reshape(1, 128, 221, 1)
-        print(type(data))
+        # print(type(data))
 
-        print(data.shape)
+        # print(data.shape)
 
         # convert to tensor
         newData = tf.convert_to_tensor(data, dtype="float32")
-        print(newData.shape)
+        # print(newData.shape)
 
         # convert X to np array
         newDataArray = np.array(newData)
-        print(newDataArray.shape)
+        # print(newDataArray.shape)
 
         # get the predicted label
         # print(self.model.summary())
