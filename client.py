@@ -12,12 +12,14 @@ FILE_PATH = "test/kasooli.wav"
 if __name__ == "__main__":
 
     # open files
-    file = open(FILE_PATH, "rb")
+    # file = open(FILE_PATH, "rb")
 
     # package stuff to send and perform POST request
-    values = {"file": (FILE_PATH, file, "audio/wav")}
-    response = requests.post(URL, files=values)
-    print(response.json())
+    values = {"file": "hello"}
+    values = json.dumps(values)
+    response = requests.post(URL, values)
+    print(response)
+    # print(response.json())
     # data = response.json()
 
     # print(response)

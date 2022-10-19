@@ -3,7 +3,9 @@ import tensorflow as tf
 import numpy as np
 from conf import *
 
-SAVED_MODEL_PATH = "model.h5"
+SAVED_MODEL_PATH = "myModel.h5"
+cnf = conf()
+conf1 = cnf.get_default_conf()
 
 
 class _Keyword_Spotting_Service:
@@ -12,7 +14,8 @@ class _Keyword_Spotting_Service:
     :param model: Trained model
     """
 
-    model = None
+    model = tf.keras.models.load_model(SAVED_MODEL_PATH)
+    # model = tf.keras.models.load_model('model')
     _mapping = {
         0: 'akawuka',
         1: 'banana',
@@ -218,30 +221,31 @@ class _Keyword_Spotting_Service:
 
         # extract spectogram
         X = self.preprocess_audio(file_path)
+        print(X.shape)
         # reshape spec
 
-        X = X.reshape(128, 221, 1)
+        data = X.reshape(1, 128, 221, 1)
+        print(type(data))
+
+        print(data.shape)
 
         # convert to tensor
-        X = tf.convert_to_tensor(X, dtype="float32")
+        newData = tf.convert_to_tensor(data, dtype="float32")
+        print(newData.shape)
 
         # convert X to np array
-        X = np.array(X)
-
-        # we need a 4-dim array to feed to the model for prediction: (# samples, # time steps, # coefficients, 1)
-        #MFCCs = MFCCs[np.newaxis, ..., np.newaxis]
+        newDataArray = np.array(newData)
+        print(newDataArray.shape)
 
         # get the predicted label
-        predictions = self.model.predict(X)
+        # print(self.model.summary())
+        predictions = self.model.predict(newDataArray)
         predicted_index = np.argmax(predictions)
         predicted_keyword = self._mapping[predicted_index]
         return predicted_keyword
 
-    cnf = conf()
-    conf = cnf.get_default_conf()
-
-    def melspectogram_dB(file_path, cst=3, top_db=80.):
-        row_sound, sr = librosa.load(file_path, sr=conf.sampling_rate)
+    def melspectogram_dB(self, file_path, cst=3, top_db=80.):
+        row_sound, sr = librosa.load(file_path, sr=conf1.sampling_rate)
         sound = np.zeros((cst*sr,))
         if row_sound.shape[0] < cst*sr:
             sound[:row_sound.shape[0]] = row_sound[:]
@@ -249,18 +253,18 @@ class _Keyword_Spotting_Service:
             sound[:] = row_sound[:cst*sr]
 
         spec = librosa.feature.melspectrogram(sound,
-                                              sr=conf.sampling_rate,
-                                              n_mels=conf.n_mels,
-                                              hop_length=conf.hop_length,
-                                              n_fft=conf.n_fft,
-                                              fmin=conf.fmin,
-                                              fmax=conf.fmax)
+                                              sr=conf1.sampling_rate,
+                                              n_mels=conf1.n_mels,
+                                              hop_length=conf1.hop_length,
+                                              n_fft=conf1.n_fft,
+                                              fmin=conf1.fmin,
+                                              fmax=conf1.fmax)
         spec_db = librosa.power_to_db(spec)
         spec_db = spec_db.astype(np.float32)
 
         return spec_db
 
-    def spec_to_image(spec, eps=1e-6):
+    def spec_to_image(self, spec, eps=1e-6):
         mean = spec.mean()
         std = spec.std()
         spec_norm = (spec - mean) / (std + eps)
@@ -275,17 +279,16 @@ class _Keyword_Spotting_Service:
         return spec
 
 
-def Keyword_Spotting_Service():
+def Keyword_Spotting_Service(self):
     """Factory function for Keyword_Spotting_Service class.
 
     :return _Keyword_Spotting_Service._instance (_Keyword_Spotting_Service):
     """
 
     # ensure an instance is created only the first time the factory function is called
-    if _Keyword_Spotting_Service._instance is None:
-        _Keyword_Spotting_Service._instance = _Keyword_Spotting_Service()
-        _Keyword_Spotting_Service.model = tf.keras.models.load_model(
-            SAVED_MODEL_PATH)
+    _Keyword_Spotting_Service._instance = _Keyword_Spotting_Service()
+    _Keyword_Spotting_Service.model = tf.keras.models.load_model(
+        SAVED_MODEL_PATH)
     return _Keyword_Spotting_Service._instance
 
 
@@ -299,9 +302,9 @@ if __name__ == "__main__":
     assert kss is kss1
 
     # make a prediction
-    import os
+    # import os
     # print("Dir log: ", os.getcwd())
-    cur_dir = os.getcwd()
+    # cur_dir = os.getcwd()
 
-    keyword = kss.predict(os.path.join(cur_dir, "test", "obutunda.wav"))
-    print(keyword)
+    # keyword = kss.predict(os.path.join(cur_dir, "test", "obutunda.wav"))
+    # print(keyword)
