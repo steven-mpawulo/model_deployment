@@ -1,3 +1,4 @@
+
 import random
 import os
 from flask import Flask, request, jsonify
@@ -10,32 +11,36 @@ app = Flask(__name__)
 
 
 @app.route("/predict", methods=["POST"])
-# def predict():
-#      """Endpoint to predict keyword
-# :return (json): This endpoint returns a json file with the following format:
-#     {
-#         "keyword": "Kasooli"
-#     }
-#     """
-# get file from POST request and save it
-# file = request.json
-# audio_file = file['file']
-#file_name = str(random.randint(0, 100000))
+#  def predict():
+# #      """Endpoint to predict keyword
+# # :return (json): This endpoint returns a json file with the following format:
+# #     {
+# #         "keyword": "Kasooli"
+# #     }
+# #     """
+# # get file from POST request and save it
+# # file = request.json
+# audio_file = request.files['file']
+# file_name = str(random.randint(0, 100000))
 # audio_file.save(file_name)
-# instantiate keyword spotting service singleton and get prediction
+# # instantiate keyword spotting service singleton and get prediction
 # kss = Keyword_Spotting_Service()
 # predicted_keyword = kss.predict(audio_file)
-# we don't need the audio file any more - let's delete it!
+# # we don't need the audio file any more - let's delete it!
 # os.remove(file_name)
-# send back result as a json file
+# # send back result as a json file
 # result = {"keyword": predicted_keyword}
 # return jsonify('result:', audio_file)
 def predict():
     if request.method == 'POST':
-        file = request.json
-        filepath = file['file']
+        # file = request.json
+        # filepath = file['file']
+        audio_file = request.files['file']
+        file_name = str(random.randint(0, 100000))
+        audio_file.save(file_name)
         kss = _Keyword_Spotting_Service()
-        predicted_keyword = kss.predict(str(filepath))
+        predicted_keyword = kss.predict(str(file_name))
+        os.remove(file_name)
 
     return jsonify(predicted_keyword)
 
