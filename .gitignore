@@ -1,0 +1,4 @@
+__pycache__/*
+templates/upload.html
+templates/main.__pycache__
+os.py
